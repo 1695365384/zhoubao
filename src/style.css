@@ -1,0 +1,11 @@
+/* .ivu-layout-header {
+  background-color: #2b85e4;
+} */
+* {
+font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+}
+
+#app ,html,body,.ivu-layout{
+    height: 100%;
+    width:100%;
+}

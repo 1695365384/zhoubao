@@ -1,25 +1,26 @@
 <template>
   <div id="app">
-    <router-view></router-view>
+    <Layout>
+      <Header-nav></Header-nav>
+      <Content>
+        <router-view></router-view>
+      </Content>
+    </Layout>
   </div>
 </template>
 
 <script>
-
+import HeaderNav from './components/Header/HeaderNav'
 export default {
-  name: 'app',
+  name: "app",
+  
   components: {
-  }
-}
+    HeaderNav
+  },
+
+};
 </script>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+
+
+
