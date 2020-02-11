@@ -15,13 +15,15 @@ module.exports = {
     // webpack-dev-server 相关配置
     devServer: {
         open: true,                                 //配置自动启动浏览器
-        host: 'localhost',
+        host: '127.0.0.1',
         port: 8080,                                 // 端口号
         https: false,
         hotOnly: false,                             // https:{type:Boolean}
         proxy: {                                        // 配置跨域
             '/api': {
-                target: 'http://172.20.10.2:8080', //源地址
+                //公网地址; 39.106.228.183:8081
+                //http://172.18.163.14:8080/ (东软内网地址) 
+                target: 'http://39.106.228.183:8080/', //源地址 http://172.18.163.14:8080/ (东软内网地址) 
                 changeOrigin: true,                  //改变源
                 ws: true,                            //是否代理websockets
                 pathRewrite: {

@@ -17,11 +17,13 @@ Axios.create({
 Vue.prototype.$http = Axios
 Vue.config.productionTip = false
 
-new Vue({
+const app =  new Vue({
   render(h) {
     return h(App)
   },
   router
 }).$mount('#app')
+
+export {app}
 
 
