@@ -1,10 +1,17 @@
 <template>
   <div class="yinlianBG">
+     <Spin
+      size="large"
+      style="position: fixed;top:0;left:0;right:0;bottom:0; "
+      fix
+      v-show="spinShow"
+    ></Spin>
     <Modal
       v-model="errModal"
-      title="Common Modal dialog box title"
+      title="提示"
       @on-ok="ok"
       @on-cancel="cancel"
+      :mask-closable="false"
     >
       <p>{{ errMsg }}</p>
     </Modal>
@@ -101,6 +108,7 @@
         },
         errMsg: '',
         slide: undefined,
+        spinShow:false
       };
     },
     mounted() {
@@ -140,10 +148,18 @@
           },
         });
         const code = result.data.respCode;
+        const userData = result.data.data;
         if (code === '200') {
+          window.localStorage.setItem('login',JSON.stringify(userData))
+          this.spinShow = true
+          setTimeout(()=>{
+            this.spinShow=false
+            this.$router.push('/home')
+          },1000)
         } else {
           this.errModal = true;
           this.isValidate = false;
+          this.errMsg = result.data.respMsg
         }
       },
     },

@@ -1,13 +1,54 @@
 <template>
-  <div style="margin: 15px 25px;">
+  <div>
+     <Spin
+      size="large"
+      style="position: fixed;top:0;left:0;right:0;bottom:0; "
+      fix
+      v-show="spinShow"
+    ></Spin>
+    <Header-nav @showModal="showModal"></Header-nav>
+    <Modal v-model="putmodal" :mask-closable="false" title="修改用户密码">
+      <Form
+        :model="putPassForm"
+        :rules="putPassFormRule"
+        label-position="left"
+        :label-width="100"
+        ref="putPassForm"
+      >
+        <FormItem label="旧密码" prop="usedPassWord">
+          <Input v-model="putPassForm.usedPassWord" type="password" />
+        </FormItem>
+        <FormItem label="新密码" prop="passWord">
+          <Input v-model="putPassForm.passWord" type="password" />
+        </FormItem>
+        <FormItem label="确认密码" prop="againPass">
+          <Input v-model="putPassForm.againPass" type="password" />
+        </FormItem>
+      </Form>
+      <div slot="footer">
+        <Button type="success" @click="putOk" :disabled="!putPassOkDisable"
+          >确定</Button
+        >
+        <Button type="text" @click="putmodal = false">取消</Button>
+      </div>
+    </Modal>
+
+    <Modal
+      v-model="logout"
+      :mask-closable="false"
+      title="确定要注销登录吗"
+      @on-ok="logoutFunc"
+      @on-cancel="logout = false"
+    >
+    </Modal>
     <Row style="margin: 25px;">
       <Col span="8">
         <h1>今天是{{ time }}</h1>
       </Col>
       <Col span="16">
         <Row>
-          <Col span="12">
-            <label
+          <Col span="0">
+            <!-- <label
               style="font-weight: 500;font-size: 20px;"
               for="cascadeCurrent"
               >请选择或者搜索你的名字:
@@ -28,15 +69,14 @@
                 :key="item.value"
                 >{{ item.label }}
               </Option>
-            </Select>
+            </Select> -->
           </Col>
-          <Col span="12">
-            <span style="padding-left: 25px;font-size: 20px;"
+          <Col span="24" >
+            <span style="padding-left: 25px;font-size: 20px;float:right;"
               >上次提交的时间:
               {{
                 lastEmitTIme && cascadeCurrent ? lastEmitTIme : '暂无数据'
-              }}</span
-            >
+              }}</span>
           </Col>
         </Row>
       </Col>
@@ -160,347 +200,510 @@
 </template>
 
 <script>
-export default {
-  name: 'home',
-  data() {
-    return {
-      time: '' /**今天的时间 */,
-      team_leader: [] /**级联选择器的绑定值 */,
-      cascadeCurrent: '' /*当前选择的值*/,
-      cascadeCurLabel: '',
-      cascadeData: [],
-      spinShow: false /*loading状态*/,
-      tabHeader: [
-        {
-          title: '项目名称',
-          slot: 'target',
-          className: 'demo-table-info-column '
+  import HeaderNav from '@/components/Header/HeaderNav';
+  export default {
+    name: 'home',
+    data() {
+      return {
+        putmodal: false /**修改密码的模态框显示 */,
+        logout: false /**注销登录模态框修改 */,
+        time: '' /**今天的时间 */,
+        putPassForm: {
+          usedPassWord: '',
+          passWord: '',
+          againPass: '',
         },
-        {
-          title: '工作内容',
-          slot: 'Major',
-          className: 'demo-table-info-column '
+        spinShow:false,/**控制加载中的显示 */
+        putPassOkDisable: false,
+        putPassFormRule: {
+          usedPassWord: [
+            {
+              required: true,
+              message: '旧密码不能为空',
+              trigger: 'change',
+            },
+            {
+              type: 'string',
+              min: 6,
+              message: '密码长度不要少于6位',
+              trigger: 'change',
+            },
+            {
+              type: 'string',
+              max: 18,
+              message: '密码长度不要大于18位',
+              trigger: 'change',
+            },
+          ],
+          againPass: [
+            {
+              required: true,
+              message: '确认密码不能为空',
+              trigger: 'change',
+            },
+            {
+              type: 'string',
+              min: 6,
+              message: '密码长度不要少于6位',
+              trigger: 'change',
+            },
+            {
+              type: 'string',
+              max: 18,
+              message: '密码长度不要大于18位',
+              trigger: 'change',
+            },
+            {
+              type: 'string',
+              message: '两次输入的密码不一致',
+              trigger: 'change',
+              validator: (rule, value) => {
+                return value === this._data.putPassForm.passWord;
+              },
+            },
+          ],
+          passWord: [
+            {
+              required: true,
+              message: '新密码不为能空',
+              trigger: 'change',
+            },
+             {
+              type: 'string',
+              message: '新密码不能和旧密码相同',
+              trigger: 'change',
+              validator: (rule, value) => {
+                return value !== this._data.putPassForm.usedPassWord;
+              },
+            },
+            {
+              type: 'string',
+              min: 6,
+              message: '密码长度不要少于6位',
+              trigger: 'change',
+            },
+            {
+              type: 'string',
+              max: 18,
+              message: '密码长度不要大于18位',
+              trigger: 'change',
+            },
+          ],
         },
-        {
-          title: '操作',
-          className: 'demo-table-info-column ',
-          slot: 'btn'
+        team_leader: [] /**级联选择器的绑定值 */,
+        cascadeCurrent: '' /*当前选择的值*/,
+        cascadeCurLabel: '',
+        cascadeData: [],
+        spinShow: false /*loading状态*/,
+        tabHeader: [
+          {
+            title: '项目名称',
+            slot: 'target',
+            className: 'demo-table-info-column ',
+          },
+          {
+            title: '工作内容',
+            slot: 'Major',
+            className: 'demo-table-info-column ',
+          },
+          {
+            title: '操作',
+            className: 'demo-table-info-column ',
+            slot: 'btn',
+          },
+        ],
+        log_content: [
+          {
+            target: '',
+            Major: [{ content: '' }],
+          },
+        ],
+        lastEmitTIme: '' /*上次提交时间*/,
+        lastContent: [] /*上周周报内容*/,
+        lastThead: [
+          {
+            title: '项目名称',
+            slot: 'target',
+            className: 'demo-table-info-column ',
+          },
+          {
+            title: '工作内容',
+            slot: 'Major',
+            className: 'demo-table-info-column ',
+          },
+        ],
+      };
+    },
+    components: {
+      HeaderNav,
+    },
+    created() {
+      this.getToday();
+      // this.getUser();
+      let userData = JSON.parse(window.localStorage.getItem('userList'));
+      this.getLastUser();
+      this.log_content = userData ? userData : this.log_content;
+    },
+    methods: {
+      //显示修改密码模态框
+      showModal(isShow) {
+        if (isShow === 'putPass') {
+          this.putmodal = true;
+        } else if (isShow === 'logout') {
+          this.logout = true;
         }
-      ],
-      log_content: [
-        {
-          target: '',
-          Major: [{ content: '' }]
+      },
+     async putOk() {
+        const {passWord,usedPassWord} = this.putPassForm  
+        const userinfo = JSON.parse(localStorage.getItem('login'))
+        const result = await this.$http.post('/api/putPassWord',{data:{id:String(userinfo.id),passWord,usedPassWord}})
+        const {respCode,respMsg} = result.data
+
+        if(respCode==='200'){
+          this.spinShow = true
+          this.putmodal = false
+
+          setTimeout(()=>{
+            this.$refs['putPassForm'].resetFields();
+            localStorage.removeItem('login')
+            setTimeout(()=>{
+               this.$Message.info('修改密码成功,跳转登录页面重新登录');
+              this.spinShow = false
+              this.$router.push('/login')
+            },0)
+          },1000)
+        }else {
+           this.$Message.info(respMsg);
         }
-      ],
-      lastEmitTIme: '' /*上次提交时间*/,
-      lastContent: [] /*上周周报内容*/,
-      lastThead: [
-        {
-          title: '项目名称',
-          slot: 'target',
-          className: 'demo-table-info-column '
-        },
-        {
-          title: '工作内容',
-          slot: 'Major',
-          className: 'demo-table-info-column '
+      },
+      /**注销登录 */
+      logoutFunc() {
+        localStorage.removeItem('login');
+        this.$router.push('/login');
+      },
+      getToday() {
+        let time = new Date();
+        this.time = `${time.getFullYear()}年${time.getMonth() +
+          1}月${time.getDate()}日`;
+      },
+      /**获取上一次保存的用户*/
+      getLastUser() {
+        const name = JSON.parse(localStorage.getItem('currentName'));
+        if (name) {
+          const { value, label } = name;
+          this.cascadeCurrent = value;
+          this.cascadeCurLabel = label;
+          this.getWeekLogList();
         }
-      ]
-    };
-  },
-  created() {
-    this.getToday();
-    this.getUser();
-    let userData = JSON.parse(window.localStorage.getItem('userList'));
-    this.getLastUser();
-    this.log_content = userData ? userData : this.log_content;
-  },
-  methods: {
-    getToday() {
-      let time = new Date();
-      this.time = `${time.getFullYear()}年${time.getMonth() +
-        1}月${time.getDate()}日`;
-    },
-    /**获取上一次保存的用户*/
-    getLastUser() {
-      const name = JSON.parse(localStorage.getItem('currentName'));
-      if (name) {
-        const { value, label } = name;
-        this.cascadeCurrent = value;
-        this.cascadeCurLabel = label;
-        this.getWeekLogList();
-      }
-    },
-    /*获取用户列表*/
-    getUser() {
-      this.$http
-        .post('/api/user/get_user', {})
-        .then(res => {
-          if (res.data.respCode === '200') {
-            let userList = res.data.data.list;
-            this.cascadeData = userList.map(item => {
-              return {
-                value: item.id,
-                label: item['userName']
-              };
-            });
-          } else {
-            this.$Notice.info({
-              title: '获取用户列表失败'
-            });
-          }
-        })
-        .catch(err => {
-          if (err) {
-            this.$Notice.error({
-              title: '服务器数据异常'
-            });
-          }
-        });
-    },
-
-    /*删除工作*/
-    delContent(index, majorIndex) {
-      if (this.log_content[index]['Major'].length > 1) {
-        this.log_content[index]['Major'].splice(majorIndex, 1);
-      } else {
-        this.$Notice.open({
-          title: '提示',
-          desc: '只剩最后一项了'
-        });
-      }
-      this.saveUserData();
-    },
-    /*添加工作*/
-    addContent(index) {
-      if (
-        !this.log_content[index]['Major'][
-          this.log_content[index]['Major'].length - 1
-        ]['content']
-      ) {
-        this.$Notice.warning({ desc: '有空的工作内容' });
-      } else if (this.log_content[index]['Major'].length >= 10) {
-        this.$Notice.info({ desc: '工作内容最多添加十条' });
-      } else {
-        this.log_content[index]['Major'].push({ content: '' });
-      }
-      this.saveUserData();
-    },
-    /*添加项目*/
-    addTarget() {
-      if (this.log_content.length < 5) {
-        this.log_content.push({
-          target: '',
-          Major: [{ content: '' }]
-        });
-      } else {
-        this.$Notice.info({
-          title: '最多五个项目'
-        });
-      }
-      this.saveUserData();
-    },
-
-    /*删除项目*/
-    delTarget(index) {
-      if (this.log_content.length > 1) {
-        this.log_content.splice(index, 1);
-      } else {
-        this.$Notice.info({
-          desc: '最后一条了'
-        });
-      }
-      this.saveUserData();
-    },
-
-    /*提交周报*/
-    emitLogList() {
-      this.spinShow = true;
-
-      if (!this.cascadeCurrent) {
-        this.spinShow = false;
-        return this.$Notice.error({
-          title: '请选择成员名称'
-        });
-      } else if (!this.log_content.every(item => item.target)) {
-        this.spinShow = false;
-
-        return this.$Notice.error({
-          title: '不要提交空的项目名称'
-        });
-      } else if (
-        !this.log_content.every(item => item.Major.every(list => list.content))
-      ) {
-        this.spinShow = false;
-        return this.$Notice.error({
-          title: '请不要提交空的工作内容'
-        });
-      } else {
-        setTimeout(() => {
-          if (this.cascadeCurrent) {
-            this.$http
-              .post('/api/weekly/add_log', {
-                data: {
-                  userId: this.cascadeCurrent + '',
-                  body: JSON.stringify(this.log_content)
-                }
-              })
-              .then(res => {
-                if (res.data['respCode'] === '200') {
-                  this.spinShow = false;
-                  this.saveUserData();
-                  setTimeout(() => {
-                    this.$router.push(`/showLog`);
-                    this.$Notice.info({
-                      title: '提交周报成功'
-                    });
-                  }, 200);
-                } else {
-                  this.$Notice.info({
-                    title: '提交周报失败'
-                  });
-                  this.spinShow = false;
-                }
-              })
-              .catch(err => {
-                if (err) {
-                  this.$Notice.error({
-                    title: '服务器异常!'
-                  });
-                }
-              });
-          }
-        }, 1000);
-      }
-    },
-
-    /*获取上周的周报*/
-    getWeekLogList() {
-      if (this.cascadeCurrent) {
+      },
+      /*获取用户列表*/
+      getUser() {
         this.$http
-          .post('/api/weekly/get_last_logs', {
-            data: {
-              userId: this.cascadeCurrent + ''
-            }
-          })
+          .post('/api/user/get_user', {})
           .then(res => {
-            if (res.data['respCode'] === '200') {
-              let { time, body } = res.data.data;
-              if (time) {
-                this.lastEmitTIme = res.data.data.time;
-                if (body !== null) {
-                  this.lastContent =
-                    JSON.parse(res.data.data.body.body) != null
-                      ? JSON.parse(res.data.data.body.body)
-                      : [];
-                } else {
-                  this.lastContent = [];
-                }
-              } else {
-                this.$Notice.info({
-                  title: '上周周报没有内容'
-                });
-                this.lastContent = [];
-                this.lastEmitTIme = '';
-              }
+            if (res.data.respCode === '200') {
+              let userList = res.data.data.list;
+              this.cascadeData = userList.map(item => {
+                return {
+                  value: item.id,
+                  label: item['userName'],
+                };
+              });
             } else {
               this.$Notice.info({
-                title: '没有获取周报'
+                title: '获取用户列表失败',
               });
             }
           })
           .catch(err => {
             if (err) {
               this.$Notice.error({
-                title: '服务器异常'
+                title: '服务器数据异常',
               });
             }
           });
-      }
-    },
+      },
 
-    /*选择用户的下拉框点击事件*/
-    selectUser(e) {
-      if (e !== undefined) {
+      /*删除工作*/
+      delContent(index, majorIndex) {
+        if (this.log_content[index]['Major'].length > 1) {
+          this.log_content[index]['Major'].splice(majorIndex, 1);
+        } else {
+          this.$Notice.open({
+            title: '提示',
+            desc: '只剩最后一项了',
+          });
+        }
+        this.saveUserData();
+      },
+      /*添加工作*/
+      addContent(index) {
+        if (
+          !this.log_content[index]['Major'][
+            this.log_content[index]['Major'].length - 1
+          ]['content']
+        ) {
+          this.$Notice.warning({ desc: '有空的工作内容' });
+        } else if (this.log_content[index]['Major'].length >= 10) {
+          this.$Notice.info({ desc: '工作内容最多添加十条' });
+        } else {
+          this.log_content[index]['Major'].push({ content: '' });
+        }
+        this.saveUserData();
+      },
+      /*添加项目*/
+      addTarget() {
+        if (this.log_content.length < 5) {
+          this.log_content.push({
+            target: '',
+            Major: [{ content: '' }],
+          });
+        } else {
+          this.$Notice.info({
+            title: '最多五个项目',
+          });
+        }
+        this.saveUserData();
+      },
+
+      /*删除项目*/
+      delTarget(index) {
+        if (this.log_content.length > 1) {
+          this.log_content.splice(index, 1);
+        } else {
+          this.$Notice.info({
+            desc: '最后一条了',
+          });
+        }
+        this.saveUserData();
+      },
+
+      /*提交周报*/
+      emitLogList() {
+        this.spinShow = true;
+
         if (!this.cascadeCurrent) {
+          this.spinShow = false;
+          return this.$Notice.error({
+            title: '请选择成员名称',
+          });
+        } else if (!this.log_content.every(item => item.target)) {
+          this.spinShow = false;
+
+          return this.$Notice.error({
+            title: '不要提交空的项目名称',
+          });
+        } else if (
+          !this.log_content.every(item =>
+            item.Major.every(list => list.content),
+          )
+        ) {
+          this.spinShow = false;
+          return this.$Notice.error({
+            title: '请不要提交空的工作内容',
+          });
+        } else {
+          setTimeout(() => {
+            if (this.cascadeCurrent) {
+              this.$http
+                .post('/api/weekly/add_log', {
+                  data: {
+                    userId: this.cascadeCurrent + '',
+                    body: JSON.stringify(this.log_content),
+                  },
+                })
+                .then(res => {
+                  if (res.data['respCode'] === '200') {
+                    this.spinShow = false;
+                    this.saveUserData();
+                    setTimeout(() => {
+                      this.$router.push(`/showLog`);
+                      this.$Notice.info({
+                        title: '提交周报成功',
+                      });
+                    }, 200);
+                  } else {
+                    this.$Notice.info({
+                      title: '提交周报失败',
+                    });
+                    this.spinShow = false;
+                  }
+                })
+                .catch(err => {
+                  if (err) {
+                    this.$Notice.error({
+                      title: '服务器异常!',
+                    });
+                  }
+                });
+            }
+          }, 1000);
+        }
+      },
+
+      /*获取上周的周报*/
+      getWeekLogList() {
+        const userId = JSON.parse(localStorage.getItem('login'))
+        if (userId) {
+          this.$http
+            .post('/api/weekly/get_last_logs', {
+              data: {
+                userId: userId.id + '',
+              },
+            })
+            .then(res => {
+              if (res.data['respCode'] === '200') {
+                let { time, body } = res.data.data;
+                if (time) {
+                  this.lastEmitTIme = res.data.data.time;
+                  if (body !== null) {
+                    this.lastContent =
+                      JSON.parse(res.data.data.body.body) != null
+                        ? JSON.parse(res.data.data.body.body)
+                        : [];
+                  } else {
+                    this.lastContent = [];
+                  }
+                } else {
+                  this.$Notice.info({
+                    title: '上周周报没有内容',
+                  });
+                  this.lastContent = [];
+                  this.lastEmitTIme = '';
+                }
+              } else {
+                this.$Notice.info({
+                  title: '没有获取周报',
+                });
+              }
+            })
+            .catch(err => {
+              if (err) {
+                this.$Notice.error({
+                  title: '服务器异常',
+                });
+              }
+            });
+        }
+      },
+
+      /*选择用户的下拉框点击事件*/
+      selectUser(e) {
+        if (e !== undefined) {
+          if (!this.cascadeCurrent) {
+            this.lastEmitTIme = '';
+            this.lastContent = [];
+          }
+
+          const { value, label } = e;
+          localStorage.setItem('currentName', JSON.stringify({ value, label }));
+          this.getWeekLogList();
+        } else {
+          localStorage.removeItem('currentName');
           this.lastEmitTIme = '';
           this.lastContent = [];
         }
+      },
 
-        const { value, label } = e;
-        localStorage.setItem('currentName', JSON.stringify({ value, label }));
-        this.getWeekLogList();
-      } else {
-        localStorage.removeItem('currentName');
-        this.lastEmitTIme = '';
-        this.lastContent = [];
-      }
+      /*保存用户的输入数据*/
+      saveUserData() {
+        window.localStorage.setItem(
+          'userList',
+          JSON.stringify(this.log_content),
+        );
+      },
+
+      /**输入框的输入提示*/
+      inputChange(index, majorIndex) {
+        this.saveUserData();
+        if (this.log_content[index]['Major'][majorIndex].content.length >= 50) {
+          return this.$Notice.error({
+            title: '内容过长，请新增一列',
+          });
+        }
+      },
+
+      targetChange(index) {
+        this.saveUserData();
+        if (this.log_content[index].target.length >= 50) {
+          this.$Notice.error({
+            title: '项目名称过长',
+          });
+        }
+      },
     },
-
-    /*保存用户的输入数据*/
-    saveUserData() {
-      window.localStorage.setItem('userList', JSON.stringify(this.log_content));
+    filters: {
+      capNumber(value) {
+        if (!value) return '';
+        switch (value) {
+          case 1:
+            return '一、';
+          case 2:
+            return '二、';
+          case 3:
+            return '三、';
+          case 4:
+            return '四、';
+          case 5:
+            return '五、';
+          default:
+            return '';
+        }
+      },
+      capIndex(value) {
+        if (value < 10) {
+          return '0' + value;
+        } else {
+          return value;
+        }
+      },
     },
-
-    /**输入框的输入提示*/
-    inputChange(index, majorIndex) {
-      this.saveUserData();
-      if (this.log_content[index]['Major'][majorIndex].content.length >= 50) {
-        return this.$Notice.error({
-          title: '内容过长，请新增一列'
-        });
-      }
-    },
-
-    targetChange(index) {
-      this.saveUserData();
-      if (this.log_content[index].target.length >= 50) {
-        this.$Notice.error({
-          title: '项目名称过长'
-        });
-      }
+    watch:{
+      'putPassForm.passWord':function(newVal,oldVal){
+        this.$refs['putPassForm'].validate(valid=>{
+          this.putPassOkDisable = valid 
+        })
+      },
+      'putPassForm.usedPassWord':function(newVal,oldVal){
+         this.$refs['putPassForm'].validate(valid=>{
+          this.putPassOkDisable = valid
+        })
+      },
+      'putPassForm.againPass':function(newVal,oldVal){
+         this.$refs['putPassForm'].validate(valid=>{
+          this.putPassOkDisable = valid
+        })
+      },
     }
-  },
-  filters: {
-    capNumber(value) {
-      if (!value) return '';
-      switch (value) {
-        case 1:
-          return '一、';
-        case 2:
-          return '二、';
-        case 3:
-          return '三、';
-        case 4:
-          return '四、';
-        case 5:
-          return '五、';
-        default:
-          return '';
-      }
-    },
-    capIndex(value) {
-      if (value < 10) {
-        return '0' + value;
-      } else {
-        return value;
-      }
-    }
-  }
-};
+   
+  };
 </script>
 <style lang="css">
-.ivu-table th.demo-table-info-column {
-  background-color: #2db7f5;
-  color: #fff;
-  text-align: center;
-}
+  .ivu-table th.demo-table-info-column {
+    background-color: #2db7f5;
+    color: #fff;
+    text-align: center;
+  }
 
-.num_icon {
-  font-size: 18px;
-  font-weight: 700;
-  line-height: 100%;
-  margin: 0 5px;
-}
+  .wrapper {
+    position: relative;
+    height: 100%;
+    width: 100%;
+  }
+
+  .num_icon {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 100%;
+    margin: 0 5px;
+  }
+
+    .demo-spin-container{
+    	display: inline-block;
+        width: 200px;
+        height: 100px;
+        position: relative;
+        border: 1px solid #eee;
+    }
+  
 </style>
