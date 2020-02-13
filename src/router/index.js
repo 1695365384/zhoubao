@@ -15,7 +15,7 @@ const routes = [
   },
   {
     path: '/',
-   redirect:'/home'
+    redirect: '/home',
   },
   {
     path: '/admin',
@@ -46,17 +46,17 @@ const router = new Router({
 });
 
 router.beforeEach((to, form, next) => {
-  if (to.path === '/' || to.path === '/home' ) {
+  if (to.path === '/' || to.path === '/home' || to.path === '/show_log') {
     if (loginStorage.isLogin()) {
-      const loginStauts  =  JSON.parse(window.localStorage.getItem('login'))
+      const loginStauts = JSON.parse(window.localStorage.getItem('login'));
       loginStauts.topbarShow = true;
-      window.localStorage.setItem('login',JSON.stringify(loginStauts))
+      window.localStorage.setItem('login', JSON.stringify(loginStauts));
       next();
     } else {
       next('/login');
     }
-  }else {
-      next()
+  } else {
+    next();
   }
 });
 

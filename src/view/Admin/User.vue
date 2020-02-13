@@ -213,7 +213,6 @@
                     }
                 }).catch(err => {
                     if (err) {
-                        console.log(err)
                         this.$Notice.error({
                             title: '服务器数据异常'
                         })
@@ -384,7 +383,6 @@
                 let admin = JSON.parse(window.localStorage.getItem('admin'))
                 let {userName, passWord} = admin
                 this.$http.post('/api/sys_user/login', {data: {userName, passWord}}).then(res => {
-                    console.log(res)
                     if (res.data.respCode === '200') {
                         window.localStorage.setItem('admin', JSON.stringify(res.data.data))
                     }

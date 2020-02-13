@@ -124,6 +124,7 @@
 
 <script>
   import HeaderNav from '../../components/Header/HeaderNav';
+  import tabTemplate from './tabTemplate'
 
   export default {
     name: 'showLog',
@@ -148,7 +149,7 @@
             type: 'expand',
             align: 'center',
             title: '展开内容',
-            width: '60%',
+            width: '100%',
             render: (h, params) => {
               return h(tabTemplate, {
                 props: {
@@ -160,6 +161,7 @@
           {
             type: 'index',
             align: 'center',
+             width: '90%',
             indexMethod: (cont, index) => {
               return (this.currentPage - 1) * this.pageSize + cont._index + 1;
             },
@@ -378,9 +380,6 @@
                 };
               });
 
-              this.$Notice.info({
-                title: '周报查询成功',
-              });
             } else {
               this.$Notice.error({
                 title: '周报查询失败',

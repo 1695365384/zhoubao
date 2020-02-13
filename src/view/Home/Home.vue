@@ -75,7 +75,7 @@
             <span style="padding-left: 25px;font-size: 20px;float:right;"
               >上次提交的时间:
               {{
-                lastEmitTIme && cascadeCurrent ? lastEmitTIme : '暂无数据'
+                lastEmitTIme  ? lastEmitTIme : '暂无数据'
               }}</span>
           </Col>
         </Row>
@@ -339,9 +339,9 @@
     },
     created() {
       this.getToday();
-      // this.getUser();
       let userData = JSON.parse(window.localStorage.getItem('userList'));
-      this.getLastUser();
+      // this.getLastUser();
+      this.getWeekLogList();
       this.log_content = userData ? userData : this.log_content;
     },
     methods: {
@@ -387,15 +387,15 @@
           1}月${time.getDate()}日`;
       },
       /**获取上一次保存的用户*/
-      getLastUser() {
-        const name = JSON.parse(localStorage.getItem('currentName'));
-        if (name) {
-          const { value, label } = name;
-          this.cascadeCurrent = value;
-          this.cascadeCurLabel = label;
-          this.getWeekLogList();
-        }
-      },
+      // getLastUser() {
+      //   const name = JSON.parse(localStorage.getItem('currentName'));
+      //   if (name) {
+      //     const { value, label } = name;
+      //     this.cascadeCurrent = value;
+      //     this.cascadeCurLabel = label;
+      //     this.getWeekLogList();
+      //   }
+      // },
       /*获取用户列表*/
       getUser() {
         this.$http
@@ -481,13 +481,9 @@
       /*提交周报*/
       emitLogList() {
         this.spinShow = true;
-
-        if (!this.cascadeCurrent) {
-          this.spinShow = false;
-          return this.$Notice.error({
-            title: '请选择成员名称',
-          });
-        } else if (!this.log_content.every(item => item.target)) {
+        const userId = JSON.parse(localStorage.getItem('login')).id
+        
+       if (!this.log_content.every(item => item.target)) {
           this.spinShow = false;
 
           return this.$Notice.error({
@@ -504,11 +500,10 @@
           });
         } else {
           setTimeout(() => {
-            if (this.cascadeCurrent) {
               this.$http
                 .post('/api/weekly/add_log', {
                   data: {
-                    userId: this.cascadeCurrent + '',
+                    userId: userId+"",
                     body: JSON.stringify(this.log_content),
                   },
                 })
@@ -517,10 +512,10 @@
                     this.spinShow = false;
                     this.saveUserData();
                     setTimeout(() => {
-                      this.$router.push(`/showLog`);
                       this.$Notice.info({
                         title: '提交周报成功',
                       });
+                      this.$router.push(`/show_log`);
                     }, 200);
                   } else {
                     this.$Notice.info({
@@ -536,8 +531,7 @@
                     });
                   }
                 });
-            }
-          }, 1000);
+          }, 500);
         }
       },
 
@@ -674,6 +668,8 @@
           this.putPassOkDisable = valid
         })
       },
+
+
     }
    
   };

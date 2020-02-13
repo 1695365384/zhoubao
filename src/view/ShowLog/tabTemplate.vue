@@ -6,7 +6,7 @@
     <List item-layout="vertical">
       <ListItem :key="capNumber(rowIndex+1)+'.'+title.target" v-for="(title,rowIndex) in  row">
          <ListItemMeta :title="capNumber(rowIndex+1)+'.'+title.target" />
-        <p  v-for='(text,index) in title.Major' :key="text" >{{(index+1)+'.' + text.content}}</p>
+        <p  v-for='(text,index) in title.Major' :key="text.content" >{{(index+1)+'.' + text.content}}</p>
       </ListItem>
     </List>
   </div>

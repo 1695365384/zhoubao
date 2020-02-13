@@ -12,7 +12,7 @@
       </MenuItem>
 
       <MenuItem style="float:right;margin-right:25px;" name="menuRight">
-        <span class="userRight"> {{ userName }}</span>
+        <span class="userRight"> <Icon type="ios-cube" />&nbsp; {{ userName }}</span>
 
         <Dropdown @on-click="putPass">
           <Icon type="ios-arrow-down"></Icon>

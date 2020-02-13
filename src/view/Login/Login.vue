@@ -128,10 +128,8 @@
         this.isValidate = true;
       },
       onFail() {
-        console.log('失败');
       },
       cleanMsg() {
-        console.log('刷新');
       },
       ok() {
         this.slide.reset();
