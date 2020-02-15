@@ -1,3 +1,5 @@
+import http from 'axios'
+
 const l = 42, // 滑块边长
   r = 9, // 滑块半径
   w = 310, // canvas宽度
@@ -60,10 +62,13 @@ function removeClass(tag, className) {
   tag.classList.remove(className);
 }
 // 随机图片地址
-function getRandomImgSrc() {
-  return '//picsum.photos/300/150/?image=' + getRandomNumberByRange(0, 1084);
-}
+// function getRandomImgSrc() {
+//   return '//picsum.photos/300/150/?image=' + getRandomNumberByRange(0, 1084);
+// }
 
+ function getRandomImgSrc() {
+  return '/api/getImg';
+}
 function draw(ctx, x, y, operation) {
   ctx.beginPath();
   ctx.moveTo(x, y);
@@ -91,6 +96,7 @@ function square(x) {
 }
 
 import './slideBlock.css';
+import Axios from 'axios';
 
 class jigsaw {
   constructor({ el, onSuccess, onFail, onRefresh }) {
@@ -111,7 +117,7 @@ class jigsaw {
     this.initDOM();
     this.initImg();
     this.bindEvents();
-    return this
+    return this;
   }
 
   initDOM() {
@@ -152,16 +158,19 @@ class jigsaw {
   }
 
   initImg() {
-    const img = createImg(() => {
-      this.draw();
-      this.canvasCtx.drawImage(img, 0, 0, w, h);
-      this.blockCtx.drawImage(img, 0, 0, w, h);
-      const y = this.y - r * 2 - 1;
-      const ImageData = this.blockCtx.getImageData(this.x - 3, y, L, L);
-      this.block.width = L;
-      this.blockCtx.putImageData(ImageData, 0, y);
-    });
+    const img = createImg();
+    const _this = this
     this.img = img;
+
+    this.img.onload = function() {
+      _this.draw();
+      _this.canvasCtx.drawImage(img, 0, 0, w, h);
+      _this.blockCtx.drawImage(img, 0, 0, w, h);
+      const y = _this.y - r * 2 - 1;
+      const ImageData = _this.blockCtx.getImageData(_this.x - 3, y, L, L);
+      _this.block.width = L;
+      _this.blockCtx.putImageData(ImageData, 0, y);
+    };
   }
 
   draw() {

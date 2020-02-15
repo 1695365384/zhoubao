@@ -2,7 +2,7 @@
   <div style="padding: 0 25px;">
     <Row>
       <Col>
-        <Menu :theme="'light'" mode="horizontal" :active-name="activePath" @on-select="menuClick">
+        <Menu :theme="'dark'" class="menuWrapper" mode="horizontal" :active-name="activePath" @on-select="menuClick">
           <MenuItem name="user">
             用户管理
           </MenuItem>
@@ -11,12 +11,8 @@
             读取周报
           </MenuItem>
 
-<!--          <MenuItem name="Attendance">-->
-<!--            考勤管理-->
-<!--          </MenuItem>-->
-
           <div class="login">
-            <span style="margin-right:20px;">{{adminName?adminName:'未登录'}}</span>
+            <span style="margin-right:20px;"><Icon type="md-contact" size="'18'" />&nbsp;{{adminName?adminName:'未登录'}}</span>
             <Button type="info" @click="loginClick">{{adminName?'退出登录':"点我登录"}}</Button>
           </div>
         </Menu>
@@ -144,7 +140,7 @@
                 this.$Notice.info({
                     title:'退出登录成功'
                 })
-              this.$router.push('/home')
+               window.location.reload();
             },
 
             /**登录发请求 */
@@ -178,6 +174,28 @@
                 let url=path.split('/admin/')[1]
                 this.activePath=url
             },
+
+
         }
     }
 </script>
+
+<style >
+
+.login {
+  position: relative;
+}
+.login span {
+  color: #fff;
+}
+ .ivu-icon{
+    font-size: 46px;
+    position: absolute;
+    left: -30%;
+    top: 10%;
+  }
+  .menuWrapper {
+    margin-left: -25px; 
+    margin-right: -25px;
+  }
+</style>

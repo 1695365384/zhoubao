@@ -22,7 +22,7 @@
           <Input
             type="text"
             v-model="formInline.userName"
-            placeholder="Username"
+            placeholder="用户名"
           >
             <Icon type="ios-person-outline" slot="prepend"></Icon>
           </Input>
@@ -31,7 +31,7 @@
           <Input
             type="password"
             v-model="formInline.passWord"
-            placeholder="Password"
+            placeholder="密码"
           >
             <Icon type="ios-lock-outline" slot="prepend"></Icon>
           </Input>
@@ -139,6 +139,7 @@
       },
 
       async login() {
+         this.spinShow = true
         const result = await this.$http.post('/api/userLogin', {
           data: {
             userName: this.formInline.userName,
@@ -149,7 +150,6 @@
         const userData = result.data.data;
         if (code === '200') {
           window.localStorage.setItem('login',JSON.stringify(userData))
-          this.spinShow = true
           setTimeout(()=>{
             this.spinShow=false
             this.$router.push('/home')

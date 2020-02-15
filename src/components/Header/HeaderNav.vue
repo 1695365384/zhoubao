@@ -3,16 +3,23 @@
     <Menu
       mode="horizontal"
       theme="primary"
-      active-name="home"
+      active-name="0"
       @on-select="menuClick"
     >
-      <MenuItem v-for="menu in menuItemList" :name="menu.name" :key="menu.name">
-        <Icon :type="menu.icon" />
-        {{ menu.text }}
+      <MenuItem name="0">
+        <Icon type="md-brush" />
+        写工作日志
+      </MenuItem>
+
+      <MenuItem name="1">
+        <Icon type="ios-paper" />
+        读工作日志
       </MenuItem>
 
       <MenuItem style="float:right;margin-right:25px;" name="menuRight">
-        <span class="userRight"> <Icon type="ios-cube" />&nbsp; {{ userName }}</span>
+        <span class="userRight">
+          <Icon type="md-contact" :size="'25px'" />&nbsp; {{ userName }}</span
+        >
 
         <Dropdown @on-click="putPass">
           <Icon type="ios-arrow-down"></Icon>
@@ -33,13 +40,14 @@
       return {
         menuItemList: [
           /*按钮的选项*/
-          { text: '写工作日志', icon: 'ios-paper', name: 'home' },
-          { text: '工作日志记录', icon: 'ios-people', name: 'show_log' },
+          { text: '写工作日志', icon: 'md-brush', name: 'home' },
+          { text: '读工作日志', icon: 'ios-paper', name: 'show_log' },
         ],
 
         userName: '',
         userId: '',
         putmodal: false,
+        activeMenu: '',
       };
     },
 
@@ -54,7 +62,8 @@
         if (name === 'menuRight') {
           return;
         }
-        this.$router.push(`/${name}`);
+        this.activeMenu = name;
+        this.$router.push(`/${this.menuItemList[name].name}`);
       },
 
       getLoginInfo() {
@@ -86,4 +95,19 @@
   .headerNav {
     padding: 0 -15px 0 -15px;
   }
+
+  .ivu-menu-item .ivu-icon {
+    font-size: 18px;
+  }
+
+  .ivu-menu-item .ivu-icon.ivu-icon-md-contact {
+    position: absolute;
+    font-size: 46px;
+    top: 10%;
+    left: -30%;
+  }
+
+  /* .ivu-menu-item-active ,.ivu-menu-item-selected {
+    color: #ccc !important;
+  } */
 </style>

@@ -2,21 +2,25 @@ import Home from '../view/Home/Home';
 import Router from 'vue-router';
 import Login from '../view/Login/Login';
 import loginStorage from '../utils/loginStorage';
-
+import Index from '../view/Index/Index';
 const routes = [
-  { path: '/home', component: Home },
-  {
-    path: '/show_log',
-    component: resolve => require(['../view/ShowLog/showLog.vue'], resolve),
-  },
-  {
-    path: '/login',
-    component: Login,
-  },
   {
     path: '/',
-    redirect: '/home',
+    component: Index,
+    children: [
+      { path: '/home', component:  resolve => require(['../view/Home/Home.vue'], resolve) },
+      {
+        path: '/show_log',
+        component: resolve => require(['../view/ShowLog/showLog.vue'], resolve),
+      },
+      {
+        path: '/',
+        redirect: '/home',
+      },
+     
+    ],
   },
+
   {
     path: '/admin',
     component: resolve => require(['../view/Admin/Admin.vue'], resolve),
@@ -27,7 +31,8 @@ const routes = [
       },
       {
         path: 'admin_log',
-        component: resolve => require(['../view/Admin/AdminLog.vue'], resolve),
+        component: resolve =>
+          require(['../view/Admin/AdminLog.vue'], resolve),
       },
       {
         path: 'Attendance',
@@ -39,7 +44,16 @@ const routes = [
       },
     ],
   },
+  {
+    path: '/login',
+    component: Login,
+  },
 ];
+
+const routerPush = Router.prototype.push;
+Router.prototype.push = function push(location) {
+  return routerPush.call(this, location).catch(error => error);
+};
 const router = new Router({
   mode: 'history',
   routes,

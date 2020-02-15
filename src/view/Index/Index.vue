@@ -1,13 +1,53 @@
 <template>
-  <div id="app">
-    <router-view />
+  <div>
+    <Modal v-model="putmodal" :mask-closable="false" title="修改用户密码">
+      <Form
+        :model="putPassForm"
+        :rules="putPassFormRule"
+        label-position="left"
+        :label-width="100"
+        ref="putPassForm"
+      >
+        <FormItem label="旧密码" prop="usedPassWord">
+          <Input v-model="putPassForm.usedPassWord" type="password" />
+        </FormItem>
+        <FormItem label="新密码" prop="passWord">
+          <Input v-model="putPassForm.passWord" type="password" />
+        </FormItem>
+        <FormItem label="确认密码" prop="againPass">
+          <Input v-model="putPassForm.againPass" type="password" />
+        </FormItem>
+      </Form>
+      <div slot="footer">
+        <Button type="success" @click="putOk" :disabled="!putPassOkDisable"
+          >确定</Button
+        >
+        <Button type="text" @click="putmodal = false">取消</Button>
+      </div>
+    </Modal>
+
+    <Modal
+      v-model="logout"
+      :mask-closable="false"
+      title="确定要注销登录吗"
+      @on-ok="logoutFunc"
+      @on-cancel="logout = false"
+    >
+    </Modal>
+
+    <Layout>
+      <Header-nav @showModal="showModal"></Header-nav>
+      <Content>
+        <router-view></router-view>
+      </Content>
+    </Layout>
   </div>
 </template>
 
 <script>
- import HeaderNav from '@/components/Header/HeaderNav';
+import HeaderNav from '@/components/Header/HeaderNav';
   export default {
-    name: 'app',
+    name: 'index',
     components:{
       HeaderNav
     },
