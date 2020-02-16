@@ -154,12 +154,6 @@
       </Col>
     </Row>
 
-    <Spin
-      size="large"
-      style="position: fixed;top:0;left:0;right:0;bottom:0; "
-      fix
-      v-show="spinShow"
-    ></Spin>
   </div>
 </template>
 
@@ -484,26 +478,9 @@
         }
       },
     },
-    watch: {
-      'putPassForm.passWord': function(newVal, oldVal) {
-        this.$refs['putPassForm'].validate(valid => {
-          this.putPassOkDisable = valid;
-        });
-      },
-      'putPassForm.usedPassWord': function(newVal, oldVal) {
-        this.$refs['putPassForm'].validate(valid => {
-          this.putPassOkDisable = valid;
-        });
-      },
-      'putPassForm.againPass': function(newVal, oldVal) {
-        this.$refs['putPassForm'].validate(valid => {
-          this.putPassOkDisable = valid;
-        });
-      },
-    },
   };
 </script>
-<style lang="css">
+<style lang="css" >
   .ivu-table th.demo-table-info-column {
     background-color: #2db7f5;
     color: #fff;
@@ -530,4 +507,8 @@
     position: relative;
     border: 1px solid #eee;
   }
+
+  /* .ivu-menu-item-active.ivu-menu-item-selected {
+    color: #dddddd!important;
+  } */
 </style>

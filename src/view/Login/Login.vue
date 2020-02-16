@@ -1,64 +1,63 @@
 <template>
-  <div class="yinlianBG">
-     <Spin
-      size="large"
-      style="position: fixed;top:0;left:0;right:0;bottom:0; "
-      fix
-      v-show="spinShow"
-    ></Spin>
-    <Modal
-      v-model="errModal"
-      title="提示"
-      @on-ok="ok"
-      @on-cancel="cancel"
-      :mask-closable="false"
-    >
-      <p>{{ errMsg }}</p>
-    </Modal>
-    <div class="container">
-      <h2 class="userTitle">用户登录</h2>
-      <Form ref="formInline" :model="formInline" :rules="ruleInline">
-        <FormItem prop="userName">
-          <Input
-            type="text"
-            v-model="formInline.userName"
-            placeholder="用户名"
-          >
-            <Icon type="ios-person-outline" slot="prepend"></Icon>
-          </Input>
-        </FormItem>
-        <FormItem prop="passWord">
-          <Input
-            type="password"
-            v-model="formInline.passWord"
-            placeholder="密码"
-          >
-            <Icon type="ios-lock-outline" slot="prepend"></Icon>
-          </Input>
-        </FormItem>
-      </Form>
-      <!-- 验证码 -->
-      <div ref="captcha" id="captcha" v-show="isSlide"></div>
-      <!-- 验证结果 -->
-      <div id="msg">
-        <Button
-          type="success"
-          @click="login()"
+  <div class="yinlianBG" @keypress.enter="showCaptcha">
+    <Row>
+      <Col span="24" :xl="{ span: '24' }" :lg="{ span: '22' }">
+        <Spin
           size="large"
-          long
-          shape="circle"
-          :disabled="!isBtnShow"
-          >登录</Button
-        >
-      </div>
-    </div>
+          style="position: fixed;top:0;left:0;right:0;bottom:0; "
+          fix
+          v-show="spinShow"
+        ></Spin>
+
+        <Captcha
+          @onSuccess="onSuccess"
+          :captchaModal="captchaModal"
+          @modalChange="modalChange"
+        />
+        <div class="userTitle">
+          <h2>研究院外包</h2>
+          <p>工作日志处理系统</p>
+        </div>
+
+        <div class="container">
+          <Form ref="formInline" :model="formInline" :rules="ruleInline">
+            <FormItem prop="userName">
+              <Input
+                type="text"
+                v-model="formInline.userName"
+                placeholder="用户名"
+                autofocus
+              >
+                <Icon slot="prefix" type="ios-person-outline"></Icon>
+              </Input>
+            </FormItem>
+            <FormItem prop="passWord">
+              <Input
+                type="password"
+                v-model="formInline.passWord"
+                placeholder="密码"
+              >
+                <Icon slot="prefix" type="ios-lock-outline"></Icon>
+              </Input>
+            </FormItem>
+          </Form>
+
+          <Button
+            type="primary"
+            @click="showCaptcha"
+            size="large"
+            long
+            shape="circle"
+            >登录</Button
+          >
+        </div>
+      </Col>
+    </Row>
   </div>
 </template>
 
 <script>
-  import './slideBlock.css';
-  import './slideBlock.js';
-
+  import Captcha from '../../components/Captcha/captcha';
   export default {
     name: 'Login',
     data() {
@@ -66,7 +65,7 @@
         errModal: false,
         msg: '',
         isValidate: false,
-        isSlide: true,
+        captchaModal: false,
         formInline: {
           userName: '',
           passWord: '',
@@ -77,69 +76,80 @@
             {
               required: true,
               message: '请输入用户名',
-              trigger: 'change',
+              trigger: 'blur',
             },
             {
               type: 'string',
-              max: 8,
+              max: 12,
               message: '用户名太长了',
-              trigger: 'change',
+              trigger: 'blur',
+            },
+            {
+              type: 'string',
+              message: '禁止使用下划线等特殊符号',
+              trigger: 'blur',
+              validator: (rule, value) => {
+                const reg = new RegExp('_', 'g');
+                return !reg.test(value);
+              },
             },
           ],
           passWord: [
             {
               required: true,
               message: '请输入密码',
-              trigger: 'change',
+              trigger: 'blur',
             },
             {
               type: 'string',
-              max: 10,
-              message: '密码的长度不能超过10位',
-              trigger: 'change',
+              max: 18,
+              message: '密码的长度不能超过18位',
+              trigger: 'blur',
             },
             {
               type: 'string',
-              min: 6,
-              message: '密码长度不能短过6位',
-              trigger: 'change',
+              min: 8,
+              message: '密码长度不能少于8位',
+              trigger: 'blur',
+            },
+            {
+              type: 'string',
+              message: '禁止使用下划线等特殊符号',
+              trigger: 'blur',
+              validator: (rule, value) => {
+                const reg = new RegExp('_', 'g');
+                return !reg.test(value);
+              },
             },
           ],
         },
         errMsg: '',
         slide: undefined,
-        spinShow:false
+        spinShow: false,
       };
     },
-    mounted() {
-      this.getCaptcha();
+    components: {
+      Captcha,
     },
+    mounted() {},
     methods: {
-      getCaptcha() {
-      this.slide=  jigsaw.init({
-          el: this.$refs.captcha,
-          onSuccess: this.onSuccess,
-          onFail: this.onFail,
-          onRefresh: this.cleanMsg,
+      showCaptcha() {
+        this.$refs['formInline'].validate(value => {
+          if (value) {
+            this.captchaModal = true;
+          }
         });
       },
-      onSuccess() {
-        // 后台登录认证
-        this.isValidate = true;
+      onSuccess(status) {
+        if (status === 'success') {
+          this.login();
+        }
       },
-      onFail() {
+      modalChange(status) {
+        this.captchaModal = status;
       },
-      cleanMsg() {
-      },
-      ok() {
-        this.slide.reset();
-      },
-      cancel() {
-        this.slide.reset();
-      },
-
       async login() {
-         this.spinShow = true
+        this.spinShow = true;
         const result = await this.$http.post('/api/userLogin', {
           data: {
             userName: this.formInline.userName,
@@ -149,24 +159,25 @@
         const code = result.data.respCode;
         const userData = result.data.data;
         if (code === '200') {
-          window.localStorage.setItem('login',JSON.stringify(userData))
-          setTimeout(()=>{
-            this.spinShow=false
-            this.$router.push('/home')
-          },1000)
+          window.localStorage.setItem('login', JSON.stringify(userData));
+          setTimeout(() => {
+            this.spinShow = false;
+            this.captchaModal = false;
+            this.$router.push('/home');
+          }, 1000);
         } else {
-          this.errModal = true;
           this.isValidate = false;
-          this.errMsg = result.data.respMsg
-        }
-      },
-    },
-    computed: {
-      isBtnShow: function() {
-        if (this.formValidate && this.isValidate) {
-          return true;
-        } else {
-          return false;
+          this.captchaModal = false;
+          this.$Modal.confirm({
+            title: '提示',
+            content: `<p>${result.data.respMsg}</p>`,
+            onOk: () => {
+              this.spinShow = false;
+            },
+            onCancel: () => {
+              this.spinShow = false;
+            },
+          });
         }
       },
     },
@@ -186,32 +197,53 @@
 </script>
 
 <style scoped lang="css">
+  .ivu-btn-primary {
+    color: #fff;
+    background-color: #3f35dc;
+    border-color: #2d8cf0;
+    background: linear-gradient(to right, #3f35dc 0%, #527ff8 100%);
+  }
   .yinlianBG {
     height: 100%;
     width: 100%;
-    background: url('../../assets/yjywaibao.jpg') no-repeat;
+    background: url('../../assets/login_BG.png') no-repeat;
     background-size: 100% 100%;
+    position: relative;
   }
   #msg {
     margin-top: 15px;
   }
+
   .userTitle {
-    font-size: 26px;
+    position: absolute;
+    top: 15rem;
+    height: 10rem;
+    left: 10%;
+    width: 100%;
+  }
+  .userTitle h2 {
+    color: #333333;
+    font-size: 66px;
     font-weight: 500;
-    color: #fff;
-    text-align: center;
+  }
+
+  .userTitle p {
+    font-size: 30px;
+    color: #a9a9a9;
   }
   .container {
-    width: 310px;
-    height: auto;
+    width: 20rem;
+    height: 20rem;
     position: absolute;
-    left: 50%;
-    margin-left: 250px;
-    top: 50%;
-    margin-top: -155px;
+    left: 10%;
+    top: 30rem;
     z-index: 1;
   }
-  .container::after {
+
+  .ivu-input-group-append,
+  .ivu-input-group-prepend {
+  }
+  /* .container::after {
     content: '';
     position: absolute;
     top: -10%;
@@ -223,18 +255,8 @@
     opacity: 0.5;
     border-radius: 15px;
     border: 1px solid #fff;
-  }
-  input {
-    display: block;
-    width: 100%;
-    line-height: 40px;
-    margin: 10px 0;
-    padding: 0 10px;
-    outline: none;
-    border: 1px solid #c8cccf;
-    border-radius: 4px;
-    color: #6a6f77;
-  }
+  } */
+
   #msg {
     width: 100%;
     line-height: 40px;

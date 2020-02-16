@@ -67,7 +67,8 @@ function removeClass(tag, className) {
 // }
 
  function getRandomImgSrc() {
-  return '/api/getImg';
+   const random = Math.floor(Math.random()*10000);
+  return '/api/getImg/?img='+random;
 }
 function draw(ctx, x, y, operation) {
   ctx.beginPath();

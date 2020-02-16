@@ -27,7 +27,7 @@
             选择名字: &nbsp;
             <Select
               v-model="userName"
-              placeholder="请选择或者搜索你的名字"
+              placeholder="请选择或者搜索成员名字"
               filterable
               clearable
               style="width: 60%;"
@@ -49,9 +49,20 @@
     </Row>
 
     <Row style="margin-top: 15px;">
-      <Col span="11"  :sm="{span:'24',offset:'0'}" :md="{span:'22',offset:'1'}" :lg="{span:'22',offset:'1'}" :xl="{span:'11',offset:'1'}">
+      <Col
+        span="11"
+        :sm="{ span: '24', offset: '0' }"
+        :md="{ span: '22', offset: '1' }"
+        :lg="{ span: '22', offset: '1' }"
+        :xl="{ span: '11', offset: '1' }"
+      >
         <Card>
-          <Table :columns="logTabHead" :data="tabData" :loading="tabLoading" :border="true"></Table>
+          <Table
+            :columns="logTabHead"
+            :data="tabData"
+            :loading="tabLoading"
+            :border="true"
+          ></Table>
           <div style="margin-top: 25px;">
             <Page
               v-if="pageTotal !== 0"
@@ -63,7 +74,13 @@
           </div>
         </Card>
       </Col>
-      <Col span="11" :sm="{span:'24',offset:'1'}" :md="{span:'23',offset:'1'}" :lg="{span:'22',offset:'1'}" :xl="{span:'11',offset:'0'}" >
+      <Col
+        span="11"
+        :sm="{ span: '24', offset: '1' }"
+        :md="{ span: '23', offset: '1' }"
+        :lg="{ span: '22', offset: '1' }"
+        :xl="{ span: '11', offset: '0' }"
+      >
         <Card style="height: 609px;overflow-y: scroll;">
           <List item-layout="vertical">
             <ListItem v-for="item in tabData" :key="item.title">
@@ -97,7 +114,7 @@
         throttle_user: 0 /**节流阀 */,
         userTimeOut: undefined,
         logTimeOut: undefined,
-        tabLoading:false,
+        tabLoading: false,
         cascadeData: [] /** 选择成员下拉框的数据*/,
         selectDate: '' /** 当前选择的时间*/,
         userID: '' /**用户id*/,
@@ -295,10 +312,10 @@
         }
       },
     },
-    beforeDestroy(){
+    beforeDestroy() {
       this.userTimeOut = undefined;
       this.logTimeOut = undefined;
-    }
+    },
   };
 </script>
 

@@ -11,17 +11,20 @@
         写工作日志
       </MenuItem>
 
-      <MenuItem name="1">
+      <!-- <MenuItem name="1">
         <Icon type="ios-paper" />
         读工作日志
-      </MenuItem>
+      </MenuItem> -->
 
       <MenuItem style="float:right;margin-right:25px;" name="menuRight">
-        <span class="userRight">
+        <!-- <span class="userRight">
+          <Icon type="md-contact" :size="'25px'" />&nbsp; {{ userName }}</span
+        > -->
+
+        <Dropdown @on-click="putPass"  trigger="click" >
+           <span class="userRight">
           <Icon type="md-contact" :size="'25px'" />&nbsp; {{ userName }}</span
         >
-
-        <Dropdown @on-click="putPass">
           <Icon type="ios-arrow-down"></Icon>
           <DropdownMenu slot="list">
             <DropdownItem name="putPass">修改密码</DropdownItem>
@@ -37,6 +40,7 @@
   export default {
     name: 'HeaderNav',
     data() {
+      
       return {
         menuItemList: [
           /*按钮的选项*/
@@ -79,7 +83,7 @@
   };
 </script>
 
-<style lang="css">
+<style lang="css" >
   .header_navbar {
     font-size: 20px;
     font-weight: 700;
@@ -104,7 +108,7 @@
     position: absolute;
     font-size: 46px;
     top: 10%;
-    left: -30%;
+    left: -80%;
   }
 
   /* .ivu-menu-item-active ,.ivu-menu-item-selected {

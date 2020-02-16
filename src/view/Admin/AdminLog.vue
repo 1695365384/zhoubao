@@ -3,7 +3,7 @@
         <div>
 
             <!--    查询条件部分-->
-            <Row style="margin-top:15px; ">
+            <Row style="margin-top:15px;" class="wrap">
                         <Col span="5">
                             选择日期: &nbsp;
                             <DatePicker
@@ -46,7 +46,7 @@
             </Row>
 
 
-            <Row>
+            <Row class="wrap">
                 <Col>
 
                     <Card style="margin-top: 15px;margin-bottom: 0;">
@@ -239,11 +239,17 @@
 
             /***获取上周周报未提交人员名单*/
             getLastLogUserList() {
+                 this.$Loading.start();
                 let admin = JSON.parse(window.localStorage.getItem('admin'))
                 let {id} = admin
                 this.$http.post('/api/user/get_user', {data: {sysId: id + ""}}).then(res => {
                     if (res.data['respCode'] === '200') {
+                        this.$Loading.finish();
                         this.notFinishedList = res.data.data['list'].filter(item => item['notFinished'] === '0')
+                    }
+                }).catch((err) => {
+                    if(err){
+                         this.$Loading.error();
                     }
                 })
             },
@@ -275,7 +281,6 @@
     .demo-table-info-row {
         text-align: center;
         margin-top: 25px;
-
     }
 
     .demo-table-info-row th {
@@ -285,6 +290,11 @@
         text-align: center;
         font-weight: 700;
         font-size: 20px;
+    }
+
+    .wrap {
+        
+        padding:  0 2rem 0 2rem;
     }
 
 </style>
